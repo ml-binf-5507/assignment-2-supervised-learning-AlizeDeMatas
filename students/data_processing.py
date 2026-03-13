@@ -84,9 +84,9 @@ def prepare_regression_data(df, target='chol'):
 
     return X, y
 
-df_raw = load_heart_disease_data()
-df_pre = preprocess_data(df_raw)   # from earlier step
-X_reg, y_reg = prepare_regression_data(df_pre, target="chol")
+# df_raw = load_heart_disease_data()
+# df_pre = preprocess_data(df_raw)   # from earlier step
+# X_reg, y_reg = prepare_regression_data(df_pre, target="chol")
 
 
 # Test
