@@ -12,23 +12,6 @@ from sklearn.model_selection import GridSearchCV
 def train_logistic_regression_grid(X_train, y_train, param_grid=None):
     """
     Train logistic regression models with grid search over hyperparameters.
-    
-    Parameters
-    ----------
-    X_train : np.ndarray or pd.DataFrame
-        Training feature matrix
-    y_train : np.ndarray or pd.Series
-        Training target vector (binary)
-    param_grid : dict, optional
-        Parameter grid for GridSearchCV. 
-        Default: {'C': [0.001, 0.01, 0.1, 1, 10, 100],
-                  'penalty': ['l2'],
-                  'solver': ['lbfgs']}
-        
-    Returns
-    -------
-    sklearn.model_selection.GridSearchCV
-        Fitted GridSearchCV object with best model
     """
     if param_grid is None:
         param_grid = {
@@ -36,13 +19,23 @@ def train_logistic_regression_grid(X_train, y_train, param_grid=None):
             'penalty': ['l2'],
             'solver': ['lbfgs']
         }
-    
-    # TODO: Implement grid search for logistic regression
-    # - Create LogisticRegression with max_iter=1000
-    # - Use GridSearchCV with cv=5
-    # - Fit on training data
-    # - Return fitted GridSearchCV object
-    pass
+
+    # Create LogisticRegression with max_iter=1000
+    log_reg = LogisticRegression(max_iter=1000)
+
+    # Use GridSearchCV with cv=5
+    grid_search = GridSearchCV(
+        estimator=log_reg,
+        param_grid=param_grid,
+        cv=5
+    )
+
+    # Fit on training data
+    grid_search.fit(X_train, y_train)
+
+    # Return fitted GridSearchCV object
+    return grid_search
+
 
 
 def train_knn_grid(X_train, y_train, param_grid=None):
@@ -72,13 +65,21 @@ def train_knn_grid(X_train, y_train, param_grid=None):
             'weights': ['uniform', 'distance'],
             'metric': ['euclidean', 'manhattan']
         }
+    knn = KNeighborsClassifier()
+
+    grid_search = GridSearchCV(
+        estimator=knn,
+        param_grid=param_grid,
+        scoring="roc_auc",  # AUROC for binary classification
+        cv=5,
+        n_jobs=-1,
+        return_train_score=False,
+    )
+
+    grid_search.fit(X_train, y_train)
+
+    return grid_search
     
-    # TODO: Implement grid search for k-NN
-    # - Create KNeighborsClassifier
-    # - Use GridSearchCV with cv=5
-    # - Fit on training data
-    # - Return fitted GridSearchCV object
-    pass
 
 
 def get_best_logistic_regression(X_train, y_train, X_test, y_test, param_grid=None):
@@ -106,11 +107,22 @@ def get_best_logistic_regression(X_train, y_train, X_test, y_test, param_grid=No
         - 'best_params': best parameters found
         - 'cv_results_df': DataFrame of all CV results
     """
-    # TODO: Implement best model retrieval
-    # - Use train_logistic_regression_grid
-    # - Extract best model
-    # - Return dictionary
-    pass
+    # Run grid search on training data
+    grid_search = train_logistic_regression_grid(X_train, y_train, param_grid=param_grid)
+
+    # Extract best model and params
+    best_model = grid_search.best_estimator_
+    best_params = grid_search.best_params_
+
+    # Put CV results in a DataFrame for inspection / plotting
+    cv_results_df = pd.DataFrame(grid_search.cv_results_)
+
+    return {
+        "model": best_model,
+        "best_params": best_params,
+        "cv_results_df": cv_results_df,
+    }
+ 
 
 
 def get_best_knn(X_train, y_train, X_test, y_test, param_grid=None):
@@ -139,8 +151,22 @@ def get_best_knn(X_train, y_train, X_test, y_test, param_grid=None):
         - 'best_k': best n_neighbors value
         - 'cv_results_df': DataFrame of all CV results
     """
-    # TODO: Implement best model retrieval
-    # - Use train_knn_grid
-    # - Extract best model and best_k
-    # - Return dictionary
-    pass
+    # Run grid search on training data
+    grid_search = train_knn_grid(X_train, y_train, param_grid=param_grid)
+
+    # Extract best model and params
+    best_model = grid_search.best_estimator_
+    best_params = grid_search.best_params_
+
+    # Extract best k directly from the best_params
+    best_k = best_params.get("n_neighbors", None)
+
+    # Wrap cv_results_ in a DataFrame for convenience
+    cv_results_df = pd.DataFrame(grid_search.cv_results_)
+
+    return {
+        "model": best_model,
+        "best_params": best_params,
+        "best_k": best_k,
+        "cv_results_df": cv_results_df,
+    }

@@ -36,7 +36,7 @@ def train_elasticnet_grid(X_train, y_train, l1_ratios, alphas):
 
     return pd.DataFrame(results)
    
-# quick sanity check
+#quick sanity check
 # np.random.seed(0)
 # X = np.random.randn(20, 5)
 # y = 2 * X[:, 0] - X[:, 1] + np.random.randn(20) * 0.1
@@ -84,6 +84,10 @@ def create_r2_heatmap(results_df, l1_ratios, alphas, output_path=None):
         fig.savefig(output_path, bbox_inches="tight")
 
     return fig
+
+# Generate the heatmap
+
+
 
 
 def get_best_elasticnet_model(X_train, y_train, X_test, y_test, 
