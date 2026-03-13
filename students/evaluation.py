@@ -27,11 +27,9 @@ def calculate_r2_score(y_true, y_pred):
     float
         R² score (between -inf and 1, higher is better)
     """
-    # TODO: Implement R² calculation
-    # Use sklearn's r2_score
-    pass
+    return r2_score(y_true, y_pred)
 
-
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 def calculate_classification_metrics(y_true, y_pred):
     """
     Calculate classification metrics.
@@ -48,11 +46,19 @@ def calculate_classification_metrics(y_true, y_pred):
     dict
         Dictionary with keys: 'accuracy', 'precision', 'recall', 'f1'
     """
-    from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+    accuracy = accuracy_score(y_true, y_pred)
+    precision = precision_score(y_true, y_pred, zero_division=0)
+    recall = recall_score(y_true, y_pred, zero_division=0)
+    f1 = f1_score(y_true, y_pred, zero_division=0)
+
+    return {
+        "accuracy": accuracy,
+        "precision": precision,
+        "recall": recall,
+        "f1": f1,
+    }
     
-    # TODO: Implement metrics calculation
-    # Return dictionary with all four metrics
-    pass
+   
 
 
 def calculate_auroc_score(y_true, y_pred_proba):
@@ -71,9 +77,7 @@ def calculate_auroc_score(y_true, y_pred_proba):
     float
         AUROC score (between 0 and 1)
     """
-    # TODO: Implement AUROC calculation
-    # Use sklearn's roc_auc_score
-    pass
+    return roc_auc_score(y_true, y_pred_proba)
 
 
 def calculate_auprc_score(y_true, y_pred_proba):
@@ -92,9 +96,7 @@ def calculate_auprc_score(y_true, y_pred_proba):
     float
         AUPRC score (between 0 and 1)
     """
-    # TODO: Implement AUPRC calculation
-    # Use sklearn's average_precision_score
-    pass
+    return average_precision_score(y_true, y_pred_proba)
 
 
 def generate_auroc_curve(y_true, y_pred_proba, model_name="Model", 
@@ -120,17 +122,39 @@ def generate_auroc_curve(y_true, y_pred_proba, model_name="Model",
     tuple
         (figure, ax) or (figure,) if ax provided
     """
-    # TODO: Implement ROC curve plotting
-    # - Calculate ROC curve using roc_curve()
-    # - Calculate AUROC using auc()
-    # - Plot curve with label showing AUROC score
-    # - Add diagonal reference line
-    # - Set labels: "False Positive Rate", "True Positive Rate"
-    # - Save to output_path if provided
-    # - Return figure and/or axes
-    pass
+    # Compute ROC curve and AUC
+    fpr, tpr, _ = roc_curve(y_true, y_pred_proba)
+    roc_auc = auc(fpr, tpr)
 
+    # Create axes if needed
+    created_fig = False
+    if ax is None:
+        fig, ax = plt.subplots()
+        created_fig = True
+    else:
+        fig = ax.figure
 
+    # Plot ROC curve
+    ax.plot(fpr, tpr, label=f"{model_name} (AUC = {roc_auc:.3f})")
+    # Diagonal line
+    ax.plot([0, 1], [0, 1], "k--", label="Random")
+
+    ax.set_xlabel("False Positive Rate")
+    ax.set_ylabel("True Positive Rate")
+    ax.set_title("ROC Curve")
+    ax.legend(loc="lower right")
+
+    if output_path is not None and created_fig:
+        fig.tight_layout()
+        fig.savefig(output_path)
+
+    # Return figure and axes
+    if created_fig:
+        return fig, ax
+    else:
+        return fig, ax
+    
+    
 def generate_auprc_curve(y_true, y_pred_proba, model_name="Model",
                         output_path=None, ax=None):
     """
@@ -154,15 +178,35 @@ def generate_auprc_curve(y_true, y_pred_proba, model_name="Model",
     tuple
         (figure, ax) or (figure,) if ax provided
     """
-    # TODO: Implement PR curve plotting
-    # - Calculate precision-recall curve using precision_recall_curve()
-    # - Calculate AUPRC using average_precision_score()
-    # - Plot curve with label showing AUPRC score
-    # - Add horizontal baseline (prevalence)
-    # - Set labels: "Recall", "Precision"
-    # - Save to output_path if provided
-    # - Return figure and/or axes
-    pass
+    # Precision-Recall curve and AUPRC
+    precision, recall, _ = precision_recall_curve(y_true, y_pred_proba)
+    ap = average_precision_score(y_true, y_pred_proba)
+
+    # Create axes if needed
+    created_fig = False
+    if ax is None:
+        fig, ax = plt.subplots()
+        created_fig = True
+    else:
+        fig = ax.figure
+
+    # Plot PR curve
+    ax.plot(recall, precision, label=f"{model_name} (AP = {ap:.3f})")
+
+    # Baseline: positive class prevalence
+    prevalence = np.mean(y_true)
+    ax.hlines(prevalence, 0, 1, colors="k", linestyles="--", label="Baseline")
+
+    ax.set_xlabel("Recall")
+    ax.set_ylabel("Precision")
+    ax.set_title("Precision-Recall Curve")
+    ax.legend(loc="lower left")
+
+    if output_path is not None and created_fig:
+        fig.tight_layout()
+        fig.savefig(output_path)
+
+    return fig, ax
 
 
 def plot_comparison_curves(y_true, y_pred_proba_log, y_pred_proba_knn,
@@ -186,11 +230,44 @@ def plot_comparison_curves(y_true, y_pred_proba_log, y_pred_proba_knn,
     matplotlib.figure.Figure
         Figure with 2 subplots (ROC and PR curves)
     """
-    # TODO: Implement comparison plotting
-    # - Create figure with 1x2 subplots
-    # - Left: ROC curves for both models
-    # - Right: PR curves for both models
-    # - Add legends with AUROC/AUPRC scores
-    # - Save to output_path if provided
-    # - Return figure
-    pass
+    # Create 1x2 subplots
+    fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+    # Left: ROC curves
+    ax_roc = axes[0]
+    generate_auroc_curve(
+        y_true,
+        y_pred_proba_log,
+        model_name="Logistic Regression",
+        ax=ax_roc,
+    )
+    generate_auroc_curve(
+        y_true,
+        y_pred_proba_knn,
+        model_name="k-NN",
+        ax=ax_roc,
+    )
+    ax_roc.set_title("ROC Curves")
+
+    # Right: PR curves
+    ax_pr = axes[1]
+    generate_auprc_curve(
+        y_true,
+        y_pred_proba_log,
+        model_name="Logistic Regression",
+        ax=ax_pr,
+    )
+    generate_auprc_curve(
+        y_true,
+        y_pred_proba_knn,
+        model_name="k-NN",
+        ax=ax_pr,
+    )
+    ax_pr.set_title("Precision-Recall Curves")
+
+    fig.tight_layout()
+
+    if output_path is not None:
+        fig.savefig(output_path)
+
+    return fig
