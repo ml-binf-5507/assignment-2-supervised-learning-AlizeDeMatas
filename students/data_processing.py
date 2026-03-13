@@ -8,7 +8,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 
-def load_heart_disease_data(path: str = "data/heart_disease_uci.csv") -> pd.DataFrame | None:
+def load_heart_disease_data(path: str = "data/heart_disease_uci.csv") -> pd.DataFrame:
     try:
         df = pd.read_csv(path)
         return df
