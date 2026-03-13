@@ -24,23 +24,23 @@ Do NOT:
 
 **Did you use any AI tools to help with this assignment?**
 
-_____ Yes     _____ No
+____X_ Yes     _____ No
 
 **If yes, please tell us:**
 
 1. **What tools did you use?** (e.g., ChatGPT, Claude, GitHub Copilot)
    
-   _________________________________________________________________
+   _________Perplexity________________________________________________________
 
 2. **What specific things did you ask them to do?** (Be specific)
    
-   _________________________________________________________________
+   _______- **Debugging**: certain sections of my code learning the resources __________________________________________________________
    
    _________________________________________________________________
 
 3. **How much of your final code came from AI vs. your own work?** (e.g., "AI gave me the formula, I wrote the loop" or "AI helped me debug an error")
    
-   _________________________________________________________________
+   __________i didnt use cursor or anything most was formulated from me but it took a long time _______________________________________________________
    
    _________________________________________________________________
 
@@ -48,13 +48,13 @@ _____ Yes     _____ No
    
    _____ Yes, I can explain it well
    
-   _____ Mostly, but I have some questions
+   __Yup have some questions___ Mostly, but I have some questions
    
    _____ No, I'm not sure I understand it
 
 **Additional comments:**
 
-_________________________________________________________________
+__________Assignment was on a higher difficulty level, was able to manage with additional resources_______________________________________________________
 
 _________________________________________________________________
 
